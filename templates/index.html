@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="site-wrapper">
+
+    <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+
+            <div class="page-header">
+               <h1>Twitter Word Cloud and Sentiment Analysis</h1>
+               <p style="font-size: 24px; margin-top: 20px;">あなたの最新のツイート100件を取得して感情分析を行い，ワードクラウドを作ります！</p>
+    
+                {% if timeline == False %}
+                    <p style="margin-top: 30px;"><a href="{{ url_for('twitter_auth') }}" class="under-distance btn btn-lg btn-default">連携アプリ認証</a></p>
+                {% else %}
+                    <img src="/static/images/output.png" style="margin: 30px;"/>
+                    <img src="{{ user_image }}" style="margin: 30px; width: 20%;"/>
+                    <img src="/static/images/alice_mask.png" style="margin: 30px;" class="image-alice" />
+                    
+                    <p style="font-size: 20px;">感情分析結果</p>
+                    {% if posinega_score > 0.5 %}
+                        <p style="font-size: 20px; color: orange;">
+                            あなたは非常にポジティブな言葉が多いですね！
+                        </p>
+                    {% elif posinega_score > 0 %}
+                        <p style="font-size: 20px; color: orange;">
+                            あなたはポジティブな言葉が多いですね！
+                        </p>
+                    {% elif posinega_score < -0.5 %}
+                        <p style="font-size: 20px; color: cyan;">
+                            あなたは非常にネガティブな言葉が多いですね...
+                        </p>
+                    {% else %}
+                        <p style="font-size: 20px; color: cyan;">
+                            あなたは少しネガティブな言葉が多いですね...
+                        </p>
+                    {% endif %}
+
+                    <p style="font-size: 20px;">10 / 100 ツイートを表示中</p>
+
+                    {% for i in range(10) %}
+                        <hr align="center">
+                        <p>{{ timeline[i].text }}</p>
+                    {% endfor %}
+
+                    
+                    <a style="margin-top: 50px;" href="{{ url_for('word_cloud', user_id = timeline[0].user.screen_name) }}" class="under-distance btn btn-lg btn-default">ワードクラウドを見る</a>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

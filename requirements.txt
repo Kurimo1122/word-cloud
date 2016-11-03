@@ -1,0 +1,13 @@
+Flask==0.11.1
+Jinja2==2.8
+Werkzeug==0.11.11
+gunicorn==19.6.0
+tweepy==3.5.0
+
+matplotlib==1.5.3 
+
+igo-python==0.9.8
+beautifulsoup4==4.5.1
+numpy==1.11.2
+Pillow==3.4.1
+wordcloud==1.2.1
