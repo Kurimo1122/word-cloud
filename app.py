@@ -18,13 +18,15 @@ import string
 import codecs
 from PIL import Image
 
-
+"""
 # Consumer Key
-#CONSUMER_KEY = os.environ['CONSUMER_KEY']
-
+CONSUMER_KEY = os.environ['CONSUMER_KEY']
 # Consumer Secret
-#CONSUMER_SECRET = os.environ['CONSUMER_SECRET']
-#CALLBACK_URL = 'http://localhost:5000' # local environment
+CONSUMER_SECRET = os.environ['CONSUMER_SECRET']
+CALLBACK_URL = 'http://localhost:5000' # local environment
+# Set key to use session of flask
+app.secret_key = os.environ['SECRET_KEY']
+"""
 
 # CALLBACK_URL (Will be redirected after authentication)
 CALLBACK_URL = 'https://twitter-word-cloud-toshi.herokuapp.com'
@@ -35,8 +37,7 @@ logging.warn('app start!')
 # Start Flask
 app = Flask(__name__)
 
-# Set key to use session of flask
-app.secret_key = os.environ['SECRET_KEY']
+
 
 # Set root page
 @app.route('/')
