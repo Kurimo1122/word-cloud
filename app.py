@@ -20,14 +20,15 @@ from PIL import Image
 
 
 # Consumer Key
-CONSUMER_KEY = os.environ['CONSUMER_KEY']
+#CONSUMER_KEY = os.environ['CONSUMER_KEY']
 
 # Consumer Secret
-CONSUMER_SECRET = os.environ['CONSUMER_SECRET']
+#CONSUMER_SECRET = os.environ['CONSUMER_SECRET']
+#CALLBACK_URL = 'http://localhost:5000' # local environment
 
 # CALLBACK_URL (Will be redirected after authentication)
 CALLBACK_URL = 'https://twitter-word-cloud-toshi.herokuapp.com'
-#CALLBACK_URL = 'http://localhost:5000' # local environment
+
 
 logging.warn('app start!')
 
