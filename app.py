@@ -43,6 +43,32 @@ app.secret_key = os.environ['SECRET_KEY']
 def index():
     timeline = user_timeline()
 
+    # preparation for calculating sentiment score
+    nouns, verbs, adjs, advs = [], [], [], []
+    nounswords, verbswords, adjswords, advswords = [], [], [], []
+    nounspoint, verbspoint, adjspoint, advspoint = [], [], [], []
+    posinega_score = 0
+    
+    # open sentiment table and save each hinshi to each list
+    f = io.open('pn_ja.dic.txt', 'r', encoding="Shift-JIS")
+    for line in f:
+        line = line.rstrip()
+        x = line.split(':')
+        if abs(float(x[3])) > 0:
+            if x[2] == '名詞':
+                nounswords.append(x[0])
+                nounspoint.append(x[3])
+            if x[2] == '動詞':
+                verbswords.append(x[0])
+                verbspoint.append(x[3])
+            if x[2] == '形容詞':
+                adjswords.append(x[0])
+                adjspoint.append(x[3])
+            if x[2] == '副詞':
+                advswords.append(x[0])
+                advspoint.append(x[3])
+    f.close()
+
     #preparation for keitaiso bunseki
     timeline_list = []   
     text_list = []
@@ -54,6 +80,7 @@ def index():
     if timeline == False:
         pass
     else:
+        user_image = timeline[0].user.profile_image_url
         for status in timeline:
             text = status.text
             if 'RT' in text:
@@ -72,6 +99,25 @@ def index():
         for word in wakati_text:
             if '名詞' in word.feature:
                 wakati_list.append(word.surface)
+                nouns.append(word.surface)
+            if '動詞' in word.feature:
+                verbs.append(word.surface)
+            if '形容詞' in word.feature:
+                adjs.append(word.surface)
+            if '副詞' in word.feature:
+                advs.append(word.surface)
+    
+
+        score = number = 0
+        score_n, number_n = analyze(nouns,nounswords,nounspoint)
+        score_v, number_v = analyze(verbs,verbswords,verbspoint)
+        score_j, number_j = analyze(adjs,adjswords,adjspoint)
+        score_v, number_v = analyze(advs,advswords,advspoint)
+        score += score_n + score_v + score_j + score_v
+        number += number_n + number_v + number_j + number_v
+    
+        if number > 0:
+            posinega_score = score / number
 
         # send wakati_all to word_cloud route
         #global wakati_all
