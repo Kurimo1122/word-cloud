@@ -18,10 +18,6 @@ import string
 import codecs
 from PIL import Image
 
-"""
-CALLBACK_URL = 'http://localhost:5000' # local environment
-"""
-
 # Consumer Key
 CONSUMER_KEY = os.environ['CONSUMER_KEY']
 
