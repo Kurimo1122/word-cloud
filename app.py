@@ -41,26 +41,6 @@ app.secret_key = os.environ['SECRET_KEY']
 @app.route('/')
 def index():
     timeline = user_timeline()
-    
-    # open sentiment table and save each hinshi to each list
-    f = io.open('pn_ja.dic.txt', 'r', encoding="Shift-JIS")
-    for line in f:
-        line = line.rstrip()
-        x = line.split(':')
-        if abs(float(x[3])) > 0:
-            if x[2] == '名詞':
-                nounswords.append(x[0])
-                nounspoint.append(x[3])
-            if x[2] == '動詞':
-                verbswords.append(x[0])
-                verbspoint.append(x[3])
-            if x[2] == '形容詞':
-                adjswords.append(x[0])
-                adjspoint.append(x[3])
-            if x[2] == '副詞':
-                advswords.append(x[0])
-                advspoint.append(x[3])
-    f.close()
 
     #preparation for keitaiso bunseki
     timeline_list = []   
@@ -92,14 +72,6 @@ def index():
         for word in wakati_text:
             if '名詞' in word.feature:
                 wakati_list.append(word.surface)
-                nouns.append(word.surface)
-            if '動詞' in word.feature:
-                verbs.append(word.surface)
-            if '形容詞' in word.feature:
-                adjs.append(word.surface)
-            if '副詞' in word.feature:
-                advs.append(word.surface)
-    
 
         # send wakati_all to word_cloud route
         #global wakati_all
