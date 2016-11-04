@@ -14,7 +14,7 @@
                 {% if timeline == False %}
                     <p style="margin-top: 30px;"><a href="{{ url_for('twitter_auth') }}" class="under-distance btn btn-lg btn-default">連携アプリ認証</a></p>
                 {% else %}
-                    <a style="margin-top: 50px;" href="{{ url_for('/', user_id = timeline[0].user.screen_name) }}" class="under-distance btn btn-lg btn-default">ワードクラウドを見る</a>
+                    <a style="margin-top: 50px;" href="{{ url_for('word_cloud', user_id = timeline[0].user.screen_name) }}" class="under-distance btn btn-lg btn-default">ワードクラウドを見る</a>
                 {% endif %}
             </div>
 

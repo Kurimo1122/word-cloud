@@ -42,17 +42,38 @@ app.secret_key = os.environ['SECRET_KEY']
 def index():
     timeline = user_timeline()
     
+    # open sentiment table and save each hinshi to each list
+    f = io.open('pn_ja.dic.txt', 'r', encoding="Shift-JIS")
+    for line in f:
+        line = line.rstrip()
+        x = line.split(':')
+        if abs(float(x[3])) > 0:
+            if x[2] == '名詞':
+                nounswords.append(x[0])
+                nounspoint.append(x[3])
+            if x[2] == '動詞':
+                verbswords.append(x[0])
+                verbspoint.append(x[3])
+            if x[2] == '形容詞':
+                adjswords.append(x[0])
+                adjspoint.append(x[3])
+            if x[2] == '副詞':
+                advswords.append(x[0])
+                advspoint.append(x[3])
+    f.close()
+
+    #preparation for keitaiso bunseki
+    timeline_list = []   
+    text_list = []
+    wakati_list = []
+    user_image = ""
+    test_list = []
+    text_all = ""
+    
     if timeline == False:
-        return render_template('index.html', timeline=timeline)
+        pass
     else:
         user_image = timeline[0].user.profile_image_url
-        timeline_list = []   
-        text_list = []
-        wakati_list = []
-        user_image = ""
-        test_list = []
-        text_all = ""
-
         for status in timeline:
             text = status.text
             if 'RT' in text:
@@ -78,42 +99,51 @@ def index():
                 adjs.append(word.surface)
             if '副詞' in word.feature:
                 advs.append(word.surface)
+    
 
         # send wakati_all to word_cloud route
         #global wakati_all
         wakati_all = " ".join(wakati_list)
-
-        fpath = "Fonts/NotoSansCJKjp-Medium.otf"
-        d = path.dirname(__file__)
-        alice_mask = np.array(Image.open(path.join(d, "alice_mask.png")))
+        session['wakati_all'] = wakati_all
+        #print('wakati_allをprintするよ')
     
-        wakati_all = "テスト中 "
-        wakati_all += session.get('wakati_all', None)
-    
-        stop_words = [
-            u'こと', u'そう', u'はず', u'みたい', u'それ',
-            u'よう', u'こと', u'これ', u'ため', u'せい', 
-            u'どころ'
-        ]
+    return render_template('index.html', timeline=timeline, user_image=user_image, posinega_score = posinega_score)
 
-        wordcloud = WordCloud(
-            background_color = 'white',
-            max_font_size = 40,
-            relative_scaling = .5,
-            font_path = fpath,
-            stopwords = set(stop_words),
-            mask = alice_mask,
-            ).generate(wakati_all)
+#show word cloud
+@app.route('/word_cloud/<user_id>', methods=['GET', 'POST'])
+def word_cloud(user_id):
+    fpath = "Fonts/NotoSansCJKjp-Medium.otf"
+    d = path.dirname(__file__)
+    alice_mask = np.array(Image.open(path.join(d, "alice_mask.png")))
+
+    wakati_all = "テスト中 "
+    wakati_all += session.get('wakati_all')
+
+    stop_words = [
+        u'こと', u'そう', u'はず', u'みたい', u'それ',
+        u'よう', u'こと', u'これ', u'ため', u'せい', 
+        u'どころ'
+    ]
+
+    wordcloud = WordCloud(
+        background_color = 'white',
+        max_font_size = 40,
+        relative_scaling = .5,
+        font_path = fpath,
+        stopwords = set(stop_words),
+        mask = alice_mask,
+        ).generate(wakati_all)
            
-        fig = plt.figure()
-        plt.imshow(wordcloud)
-        plt.axis("off")
+    fig = plt.figure()
+    plt.imshow(wordcloud)
+    plt.axis("off")
         
-        img = io.BytesIO()
-        fig.savefig(img)
-        img.seek(0)
-        response = send_file(img, mimetype='image/png')
-        return response
+    img = io.BytesIO()
+    fig.savefig(img)
+    img.seek(0)
+    response = send_file(img, mimetype='image/png')
+    return response
+
 
 # Set auth page
 @app.route('/twitter_auth', methods=['GET'])
