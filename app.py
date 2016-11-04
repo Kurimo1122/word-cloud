@@ -53,7 +53,6 @@ def index():
     if timeline == False:
         pass
     else:
-        user_image = timeline[0].user.profile_image_url
         for status in timeline:
             text = status.text
             if 'RT' in text:
@@ -79,7 +78,7 @@ def index():
         session['wakati_all'] = wakati_all
         #print('wakati_allをprintするよ')
     
-    return render_template('index.html', timeline=timeline, user_image=user_image, posinega_score = posinega_score)
+    return render_template('index.html', timeline=timeline)
 
 #show word cloud
 @app.route('/word_cloud/<user_id>', methods=['GET', 'POST'])
