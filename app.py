@@ -47,8 +47,6 @@ def index():
     nounswords, verbswords, adjswords, advswords = [], [], [], []
     nounspoint, verbspoint, adjspoint, advspoint = [], [], [], []
     posinega_score = 0
-    score = 0
-    number = 0
 
     #preparation for keitaiso kaiseki 
     text_list = []
@@ -70,11 +68,28 @@ def index():
         #get analyzed tweets text
         wakati_text = get_tweet_keitaiso_kaiseki(timeline, text_list, text_all)
 
+        for word in wakati_text:
+            if '名詞' in word.feature:
+                wakati_list.append(word.surface)
+                nouns.append(word.surface)
+            if '動詞' in word.feature:
+                verbs.append(word.surface)
+            if '形容詞' in word.feature:
+                adjs.append(word.surface)
+            if '副詞' in word.feature:
+                advs.append(word.surface)
+
         #caluculate sentiment score and meishi list
-        posinega_score, wakati_list = get_sentiment_score_and_meishi_list(wakati_text, wakati_list, 
-            nouns, verbs, adjs, advs, 
-            nounswords, verbswords, adjswords, advswords, 
-            nounspoint, verbspoint, adjspoint, advspoint, posinega_score):
+        score = number = 0
+        score_n, number_n = analyze(nouns,nounswords,nounspoint)
+        score_v, number_v = analyze(verbs,verbswords,verbspoint)
+        score_j, number_j = analyze(adjs,adjswords,adjspoint)
+        score_v, number_v = analyze(advs,advswords,advspoint)
+        score += score_n + score_v + score_j + score_v
+        number += number_n + number_v + number_j + number_v
+    
+        if number > 0:
+            posinega_score = score / number
 
         # send wakati_all to word_cloud route
         wakati_all = " ".join(wakati_list)
@@ -219,31 +234,3 @@ def analyze(hinshi, words, point):
                 number += 1
             cnt += 1
     return score, number
-
-def get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, adjs, advs, 
-    nounswords, verbswords, adjswords, advswords, 
-    nounspoint, verbspoint, adjspoint, advspoint,
-    posinega_score):
-    global socre, number
-    for word in wakati_text:
-        if '名詞' in word.feature:
-            wakati_list.append(word.surface)
-            nouns.append(word.surface)
-        if '動詞' in word.feature:
-            verbs.append(word.surface)
-        if '形容詞' in word.feature:
-            adjs.append(word.surface)
-        if '副詞' in word.feature:
-            advs.append(word.surface)
-    score = number = 0
-    score_n, number_n = analyze(nouns, nounswords, nounspoint)
-    score_v, number_v = analyze(verbs, verbswords, verbspoint)
-    score_j, number_j = analyze(adjs, adjswords, adjspoint)
-    score_v, number_v = analyze(advs, advswords, advspoint)
-    score += score_n + score_v + score_j + score_v
-    number += number_n + number_v + number_j + number_v
-    
-    if number > 0:
-        posinega_score = score / number
-
-    return posinega_score, wakati_list
