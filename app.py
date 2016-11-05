@@ -34,6 +34,9 @@ app = Flask(__name__)
 # Set key to use session of flask
 app.secret_key = os.environ['SECRET_KEY']
 
+score = 0
+number = 0
+
 # Set root page
 @app.route('/')
 def index():
@@ -68,7 +71,10 @@ def index():
         wakati_text = get_tweet_keitaiso_kaiseki(timeline, text_list, text_all)
 
         #caluculate sentiment score and meishi list
-        posinega_score, wakati_list = get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, adjs, advs, nounswords, verbswords, adjswords, advswords, nounspoint, verbspoint, adjspoint, advspoint, posinega_score, score, number):
+        posinega_score, wakati_list = get_sentiment_score_and_meishi_list(wakati_text, wakati_list, 
+            nouns, verbs, adjs, advs, 
+            nounswords, verbswords, adjswords, advswords, 
+            nounspoint, verbspoint, adjspoint, advspoint, posinega_score):
 
         # send wakati_all to word_cloud route
         wakati_all = " ".join(wakati_list)
@@ -202,11 +208,23 @@ def get_tweet_keitaiso_kaiseki(timeline, text_list, text_all):
 
     return wakati_text
 
+#analyze function to calculate the sentiment score
+def analyze(hinshi, words, point):
+    global score, number
+    for i in hinshi:
+        cnt = 0
+        for j in words:
+            if i == j:
+                score += float(point[cnt])
+                number += 1
+            cnt += 1
+    return score, number
+
 def get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, adjs, advs, 
     nounswords, verbswords, adjswords, advswords, 
     nounspoint, verbspoint, adjspoint, advspoint,
-    posinega_score, score, number):
-
+    posinega_score):
+    global socre, number
     for word in wakati_text:
         if '名詞' in word.feature:
             wakati_list.append(word.surface)
@@ -217,7 +235,7 @@ def get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, 
             adjs.append(word.surface)
         if '副詞' in word.feature:
             advs.append(word.surface)
-
+    score = number = 0
     score_n, number_n = analyze(nouns, nounswords, nounspoint, score, number)
     score_v, number_v = analyze(verbs, verbswords, verbspoint, score, number)
     score_j, number_j = analyze(adjs, adjswords, adjspoint, score, number)
@@ -228,15 +246,4 @@ def get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, 
     if number > 0:
         posinega_score = score / number
 
-    return posinega_score, meishi_list
-
-#analyze function to calculate the sentiment score
-def analyze(hinshi, words, point, score, number):
-    for i in hinshi:
-        cnt = 0
-        for j in words:
-            if i == j:
-                score += float(point[cnt])
-                number += 1
-            cnt += 1
-    return score, number
+    return posinega_score, wakati_list
