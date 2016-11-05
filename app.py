@@ -68,10 +68,7 @@ def index():
         wakati_text = get_tweet_keitaiso_kaiseki(timeline, text_list, text_all)
 
         #caluculate sentiment score and meishi list
-        posinega_score, wakati_list = get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, adjs, advs, 
-            nounswords, verbswords, adjswords, advswords, 
-            nounspoint, verbspoint, adjspoint, advspoint,
-            posinega_score, score, number):
+        posinega_score, wakati_list = get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, adjs, advs, nounswords, verbswords, adjswords, advswords, nounspoint, verbspoint, adjspoint, advspoint, posinega_score, score, number):
 
         # send wakati_all to word_cloud route
         wakati_all = " ".join(wakati_list)
