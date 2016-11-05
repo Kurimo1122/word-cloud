@@ -59,7 +59,7 @@ def index():
     # open sentiment table and save each hinshi to each list
     nounswords, nounspoint, verbswords, verbspoint, 
     adjswords, adjspoint, advswords, advspoint = save_hinshi_list(
-        nounswords, verbswords, adjswords, advswords, 
+        nounswords, verbswords, adjswords, advswords,
         nounspoint, verbspoint, adjspoint, advspoint)
     
     if timeline == False:
@@ -236,10 +236,10 @@ def get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, 
         if '副詞' in word.feature:
             advs.append(word.surface)
     score = number = 0
-    score_n, number_n = analyze(nouns, nounswords, nounspoint, score, number)
-    score_v, number_v = analyze(verbs, verbswords, verbspoint, score, number)
-    score_j, number_j = analyze(adjs, adjswords, adjspoint, score, number)
-    score_v, number_v = analyze(advs, advswords, advspoint, score, number)
+    score_n, number_n = analyze(nouns, nounswords, nounspoint)
+    score_v, number_v = analyze(verbs, verbswords, verbspoint)
+    score_j, number_j = analyze(adjs, adjswords, adjspoint)
+    score_v, number_v = analyze(advs, advswords, advspoint)
     score += score_n + score_v + score_j + score_v
     number += number_n + number_v + number_j + number_v
     
