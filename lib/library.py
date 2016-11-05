@@ -55,7 +55,7 @@ def save_hinshi_list(nounswords, verbswords, adjswords, advswords,
                     adjspoint.append(x[3])
                 if x[2] == '副詞':
                     advswords.append(x[0])
-                    sadvspoint.append(x[3])
+                    advspoint.append(x[3])
 
 #get analyzed tweets text
 def get_tweet_keitaiso_kaiseki(timeline, text_list, text_all):
