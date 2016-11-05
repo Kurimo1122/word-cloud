@@ -13,10 +13,8 @@ matplotlib.use('Agg')
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-import random
-import string
-import codecs
 from PIL import Image
+
 
 # Consumer Key
 CONSUMER_KEY = os.environ['CONSUMER_KEY']
@@ -36,9 +34,6 @@ app = Flask(__name__)
 # Set key to use session of flask
 app.secret_key = os.environ['SECRET_KEY']
 
-score = 0
-number = 0
-
 # Set root page
 @app.route('/')
 def index():
@@ -49,90 +44,48 @@ def index():
     nounswords, verbswords, adjswords, advswords = [], [], [], []
     nounspoint, verbspoint, adjspoint, advspoint = [], [], [], []
     posinega_score = 0
-    
-    # open sentiment table and save each hinshi to each list
-    f = io.open('pn_ja.dic.txt', 'r', encoding="Shift-JIS")
-    for line in f:
-        line = line.rstrip()
-        x = line.split(':')
-        if abs(float(x[3])) > 0:
-            if x[2] == '名詞':
-                nounswords.append(x[0])
-                nounspoint.append(x[3])
-            if x[2] == '動詞':
-                verbswords.append(x[0])
-                verbspoint.append(x[3])
-            if x[2] == '形容詞':
-                adjswords.append(x[0])
-                adjspoint.append(x[3])
-            if x[2] == '副詞':
-                advswords.append(x[0])
-                advspoint.append(x[3])
-    f.close()
+    score = 0
+    number = 0
 
-    #preparation for keitaiso bunseki
-    timeline_list = []   
+    #preparation for keitaiso kaiseki 
     text_list = []
     wakati_list = []
     user_image = ""
-    test_list = []
     text_all = ""
+    
+    # open sentiment table and save each hinshi to each list
+    nounswords, nounspoint, verbswords, verbspoint, 
+    adjswords, adjspoint, advswords, advspoint = save_hinshi_list(
+        nounswords, verbswords, adjswords, advswords, 
+        nounspoint, verbspoint, adjspoint, advspoint)
     
     if timeline == False:
         pass
     else:
         user_image = timeline[0].user.profile_image_url
-        for status in timeline:
-            text = status.text
-            if 'RT' in text:
-                pass
-            elif '@' in text:
-                pass
-            else:
-                text_list.append(text)
+        
+        #get analyzed tweets text
+        wakati_text = get_tweet_keitaiso_kaiseki(timeline, text_list, text_all)
 
-        text_all += "".join(text_list)
-    
-        # keitaiso bunseki
-        tagger = Tagger()
-        wakati_text = tagger.parse(text_all)
-
-        for word in wakati_text:
-            if '名詞' in word.feature:
-                wakati_list.append(word.surface)
-                nouns.append(word.surface)
-            if '動詞' in word.feature:
-                verbs.append(word.surface)
-            if '形容詞' in word.feature:
-                adjs.append(word.surface)
-            if '副詞' in word.feature:
-                advs.append(word.surface)
-    
-
-        score = number = 0
-        score_n, number_n = analyze(nouns,nounswords,nounspoint)
-        score_v, number_v = analyze(verbs,verbswords,verbspoint)
-        score_j, number_j = analyze(adjs,adjswords,adjspoint)
-        score_v, number_v = analyze(advs,advswords,advspoint)
-        score += score_n + score_v + score_j + score_v
-        number += number_n + number_v + number_j + number_v
-    
-        if number > 0:
-            posinega_score = score / number
+        #caluculate sentiment score and meishi list
+        posinega_score, wakati_list = get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, adjs, advs, 
+            nounswords, verbswords, adjswords, advswords, 
+            nounspoint, verbspoint, adjspoint, advspoint, 
+            posinega_score, score, number):
 
         # send wakati_all to word_cloud route
-        #global wakati_all
         wakati_all = " ".join(wakati_list)
         session['wakati_all'] = wakati_all
-        #print('wakati_allをprintするよ')
     
     return render_template('index.html', timeline=timeline, user_image=user_image, posinega_score = posinega_score)
 
 #show word cloud
 @app.route('/word_cloud/<user_id>', methods=['GET', 'POST'])
 def word_cloud(user_id):
+    # Set font path
     fpath = "Fonts/NotoSansCJKjp-Medium.otf"
     d = path.dirname(__file__)
+    #Set mask image 
     alice_mask = np.array(Image.open(path.join(d, "alice_mask.png")))
 
     wakati_all = "テスト中 "
@@ -144,6 +97,7 @@ def word_cloud(user_id):
         u'どころ'
     ]
 
+    #generate wordcloud
     wordcloud = WordCloud(
         background_color = 'white',
         max_font_size = 40,
@@ -156,7 +110,8 @@ def word_cloud(user_id):
     fig = plt.figure()
     plt.imshow(wordcloud)
     plt.axis("off")
-        
+    
+    #show image
     img = io.BytesIO()
     fig.savefig(img)
     img.seek(0)
@@ -208,8 +163,79 @@ def user_timeline():
     # Get tweets (max: 100 tweets) list
     return api.user_timeline(count=100)
 
+# open sentiment table and save each hinshi to each list
+def save_hinshi_list(nounswords, verbswords, adjswords, advswords, 
+    nounspoint, verbspoint, adjspoint, advspoint):
+    f = io.open('pn_ja.dic.txt', 'r', encoding="Shift-JIS")
+    for line in f:
+        line = line.rstrip()
+        x = line.split(':')
+        if abs(float(x[3])) > 0:
+            if x[2] == '名詞':
+                nounswords.append(x[0])
+                nounspoint.append(x[3])
+            if x[2] == '動詞':
+                verbswords.append(x[0])
+                verbspoint.append(x[3])
+            if x[2] == '形容詞':
+                adjswords.append(x[0])
+                adjspoint.append(x[3])
+            if x[2] == '副詞':
+                advswords.append(x[0])
+                advspoint.append(x[3])
+    f.close()
+
+    return nounswords, nounspoint, verbswords, verbspoint, adjswords, adjspoint, advswords, advspoint
+
+def get_tweet_keitaiso_kaiseki(timeline, text_list, text_all):
+    for status in timeline:
+        text = status.text
+        if 'RT' in text:
+            pass
+        elif '@' in text:
+            pass
+        else:
+            text_list.append(text)
+
+    text_all += "".join(text_list)
+    
+    # keitaiso kaiseki
+    tagger = Tagger()
+    wakati_text = tagger.parse(text_all)
+
+    return wakati_text
+
+def get_sentiment_score_and_meishi_list(wakati_text, wakati_list, nouns, verbs, adjs, advs, 
+    nounswords, verbswords, adjswords, advswords, 
+    nounspoint, verbspoint, adjspoint, advspoint,
+    posinega_score, score, number):
+
+    for word in wakati_text:
+        if '名詞' in word.feature:
+            wakati_list.append(word.surface)
+            nouns.append(word.surface)
+        if '動詞' in word.feature:
+            verbs.append(word.surface)
+        if '形容詞' in word.feature:
+            adjs.append(word.surface)
+        if '副詞' in word.feature:
+            advs.append(word.surface)
+
+    score = number = 0
+    score_n, number_n = analyze(nouns, nounswords, nounspoint, score, number)
+    score_v, number_v = analyze(verbs, verbswords, verbspoint, score, number)
+    score_j, number_j = analyze(adjs, adjswords, adjspoint, score, number)
+    score_v, number_v = analyze(advs, advswords, advspoint, score, number)
+    score += score_n + score_v + score_j + score_v
+    number += number_n + number_v + number_j + number_v
+    
+    if number > 0:
+        posinega_score = score / number
+
+    return posinega_score, meishi_list
+
 #analyze function to calculate the sentiment score
-def analyze(hinshi, words, point):
+def analyze(hinshi, words, point, score, number):
     global score, number
     for i in hinshi:
         cnt = 0
