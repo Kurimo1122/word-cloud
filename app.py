@@ -125,7 +125,7 @@ def index():
         session['wakati_all'] = wakati_all
         #print('wakati_allをprintするよ')
     
-    return render_template('index.html', timeline=timeline)
+    return render_template('index.html', timeline=timeline, user_image=user_image, posinega_score = posinega_score)
 
 #show word cloud
 @app.route('/word_cloud/<user_id>', methods=['GET', 'POST'])
