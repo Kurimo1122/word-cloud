@@ -36,7 +36,8 @@ app = Flask(__name__)
 # Set key to use session of flask
 app.secret_key = os.environ['SECRET_KEY']
 
-
+score = 0
+number = 0
 
 # Set root page
 @app.route('/')
