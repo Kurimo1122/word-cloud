@@ -206,3 +206,15 @@ def user_timeline():
     
     # Get tweets (max: 100 tweets) list
     return api.user_timeline(count=100)
+
+#analyze function to calculate the sentiment score
+def analyze(hinshi, words, point):
+    global score, number
+    for i in hinshi:
+        cnt = 0
+        for j in words:
+            if i == j:
+                score += float(point[cnt])
+                number += 1
+            cnt += 1
+    return score, number
