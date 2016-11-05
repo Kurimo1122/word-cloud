@@ -55,10 +55,10 @@ def index():
     text_all = ""
     
     # open sentiment table and save each hinshi to each list
-    nounswords, nounspoint, verbswords, verbspoint, 
-    adjswords, adjspoint, advswords, advspoint = save_hinshi_list(
+    save_hinshi_list(
         nounswords, verbswords, adjswords, advswords,
-        nounspoint, verbspoint, adjspoint, advspoint)
+        nounspoint, verbspoint, adjspoint, advspoint
+        )
     
     if timeline == False:
         pass
@@ -202,8 +202,6 @@ def save_hinshi_list(nounswords, verbswords, adjswords, advswords,
                 advswords.append(x[0])
                 advspoint.append(x[3])
     f.close()
-
-    return nounswords, nounspoint, verbswords, verbspoint, adjswords, adjspoint, advswords, advspoint
 
 def get_tweet_keitaiso_kaiseki(timeline, text_list, text_all):
     for status in timeline:
