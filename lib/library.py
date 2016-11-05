@@ -5,6 +5,15 @@ from flask import Flask, session, redirect, render_template, request, send_file
 from igo.Tagger import Tagger
 
 
+# Consumer Key
+CONSUMER_KEY = os.environ['CONSUMER_KEY']
+
+# Consumer Secret
+CONSUMER_SECRET = os.environ['CONSUMER_SECRET']
+
+# CALLBACK_URL (Will be redirected after authentication)
+CALLBACK_URL = 'https://twitter-word-cloud-toshi.herokuapp.com'
+
 # Function to get user_timeline
 def user_timeline():
     # Check request_token and oauth_verifier
