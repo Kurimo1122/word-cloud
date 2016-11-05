@@ -25,7 +25,7 @@ CONSUMER_KEY = os.environ['CONSUMER_KEY']
 CONSUMER_SECRET = os.environ['CONSUMER_SECRET']
 
 # CALLBACK_URL (Will be redirected after authentication)
-CALLBACK_URL = 'https://word-cloud-toshi.herokuapp.com'
+CALLBACK_URL = 'https://twitter-word-cloud-toshi.herokuapp.com'
 #CALLBACK_URL = 'http://localhost:5000' # local environment
 
 logging.warn('app start!')
