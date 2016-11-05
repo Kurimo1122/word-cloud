@@ -27,8 +27,13 @@ def user_timeline():
 # open sentiment table and save each hinshi to each list
 def save_hinshi_list(nounswords, verbswords, adjswords, advswords, 
     nounspoint, verbspoint, adjspoint, advspoint):
-    f = io.open('pn_ja.dic.txt', 'r', encoding="Shift-JIS")
-    for line in f:
+    with open('pn_ja.dic.txt', 'r', encoding="Shift-JIS") as f:
+    it = (line for line in f)
+    while True:
+        try:
+            line = next(it)
+        except StopIteration:
+            break
         line = line.rstrip()
         x = line.split(':')
         if abs(float(x[3])) > 0:
@@ -44,8 +49,8 @@ def save_hinshi_list(nounswords, verbswords, adjswords, advswords,
             if x[2] == '副詞':
                 advswords.append(x[0])
                 advspoint.append(x[3])
-    f.close()
 
+#get analyzed tweets text
 def get_tweet_keitaiso_kaiseki(timeline, text_list, text_all):
     for status in timeline:
         text = status.text

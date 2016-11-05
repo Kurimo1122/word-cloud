@@ -14,6 +14,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from PIL import Image
+from lib.library import user_timeline, save_hinshi_list, get_tweet_keitaiso_kaiseki
 
 
 # Consumer Key
@@ -104,7 +105,7 @@ def word_cloud(user_id):
     fpath = "Fonts/NotoSansCJKjp-Medium.otf"
     d = path.dirname(__file__)
     #Set mask image 
-    alice_mask = np.array(Image.open(path.join(d, "alice_mask.png")))
+    alice_mask = np.array(Image.open(path.join(d, "static/images/alice_mask.png")))
 
     wakati_all = "テスト中 "
     wakati_all += session.get('wakati_all')
@@ -136,7 +137,6 @@ def word_cloud(user_id):
     response = send_file(img, mimetype='image/png')
     return response
 
-
 # Set auth page
 @app.route('/twitter_auth', methods=['GET'])
 def twitter_auth():
@@ -154,72 +154,6 @@ def twitter_auth():
         logging.error(str(e))
     
     return redirect(redirect_url)
-
-# Function to get user_timeline
-def user_timeline():
-    # Check request_token and oauth_verifier
-    token = session.pop('request_token', None)
-    verifier = request.args.get('oauth_verifier')
-    
-    if token is None or verifier is None:
-        return False # if the authentication has not yet been done.
-    
-    # OAuth authentication using tweepy
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET, CALLBACK_URL)
-    
-    # Get access token, Access token secret
-    auth.request_token = token
-    try:
-        auth.get_access_token(verifier)
-    except (tweepy.TweepError, e):
-        logging.error(str(e))
-        return {}
-
-    # Access to Twitter API using tweepy
-    api = tweepy.API(auth)
-    
-    # Get tweets (max: 100 tweets) list
-    return api.user_timeline(count=100)
-
-# open sentiment table and save each hinshi to each list
-def save_hinshi_list(nounswords, verbswords, adjswords, advswords, 
-    nounspoint, verbspoint, adjspoint, advspoint):
-    f = io.open('pn_ja.dic.txt', 'r', encoding="Shift-JIS")
-    for line in f:
-        line = line.rstrip()
-        x = line.split(':')
-        if abs(float(x[3])) > 0:
-            if x[2] == '名詞':
-                nounswords.append(x[0])
-                nounspoint.append(x[3])
-            if x[2] == '動詞':
-                verbswords.append(x[0])
-                verbspoint.append(x[3])
-            if x[2] == '形容詞':
-                adjswords.append(x[0])
-                adjspoint.append(x[3])
-            if x[2] == '副詞':
-                advswords.append(x[0])
-                advspoint.append(x[3])
-    f.close()
-
-def get_tweet_keitaiso_kaiseki(timeline, text_list, text_all):
-    for status in timeline:
-        text = status.text
-        if 'RT' in text:
-            pass
-        elif '@' in text:
-            pass
-        else:
-            text_list.append(text)
-
-    text_all += "".join(text_list)
-    
-    # keitaiso kaiseki
-    tagger = Tagger()
-    wakati_text = tagger.parse(text_all)
-
-    return wakati_text
 
 #analyze function to calculate the sentiment score
 def analyze(hinshi, words, point):
