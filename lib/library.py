@@ -1,3 +1,10 @@
+# coding:utf-8
+import logging
+import tweepy
+from flask import Flask, session, redirect, render_template, request, send_file
+from igo.Tagger import Tagger
+
+
 # Function to get user_timeline
 def user_timeline():
     # Check request_token and oauth_verifier
@@ -48,7 +55,7 @@ def save_hinshi_list(nounswords, verbswords, adjswords, advswords,
                     adjspoint.append(x[3])
                 if x[2] == '副詞':
                     advswords.append(x[0])
-                    advspoint.append(x[3])
+                    sadvspoint.append(x[3])
 
 #get analyzed tweets text
 def get_tweet_keitaiso_kaiseki(timeline, text_list, text_all):
